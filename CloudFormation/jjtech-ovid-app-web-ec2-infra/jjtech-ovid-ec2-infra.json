@@ -1,0 +1,128 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "EnvironmentName": {
+        "Description": "Environment Name",
+        "Type": "String",
+        "AllowedValues": [
+          "Dev",
+          "PreProd",
+          "Prod"
+        ],
+        "ConstraintDescription": "Environment must match with specified AllowedValue"
+      },
+      "jjtechWebServerAZ": {
+          "Description": "Select an AZ for jjtechWebServer",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "jjtechWebServerImageId": {
+          "Description": "Provide ImageId for jjtechWebServer",
+          "Type": "AWS::EC2::Image::Id"
+      },
+      "jjtechWebServerInstanceType": {
+          "Description": "Provide Instance type for WebServer",
+          "Type": "String",
+          "AllowedValues": [
+            "t2.micro",
+            "t2.nano",
+            "t2.small",
+            "t1.micro"
+          ],
+          "ConstraintDescription": "WebServer Instance type must match with specified AllowedValue"
+      },
+      "jjtechWebServerKeyPair": {
+          "Description": "Provide KeyPair Name for WebServer",
+          "Type": "AWS::EC2::KeyPair::KeyName"
+      },
+      "jjtechAppServerAZ": {
+          "Description": "Select an AZ for jjtechAppServer",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "jjtechAppServerImageId": {
+          "Description": "Provide ImageId for jjtechAppServer",
+          "Type": "AWS::EC2::Image::Id"
+      },
+      "jjtechAppServerInstanceType": {
+          "Description": "AppServer EC2 instance type (has default, AllowedValues)",
+          "Type": "String",
+          "AllowedValues": [
+            "t2.micro",
+            "t2.nano",
+            "t2.small",
+            "t1.micro"
+          ],
+          "ConstraintDescription": "AppServer Instance type must match with specified AllowedValue"
+      },
+      "jjtechAppServerKeyPair": {
+          "Description": "Provide KeyPair Name for AppServer",
+          "Type": "AWS::EC2::KeyPair::KeyName"
+      }
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "jjtechWebServer": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "jjtechWebServerAZ" },
+          "ImageId": { "Ref": "jjtechWebServerImageId" },
+          "InstanceType": { "Ref": "jjtechWebServerInstanceType" },
+          "KeyName" : { "Ref": "jjtechWebServerKeyPair" },
+          "NetworkInterfaces": [ {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [ { "Fn::ImportValue": "OVIDAppServerSecurityGroup" } ],
+            "SubnetId": { "Fn::ImportValue": "OvidApplicationWebserverPubSubnetID" }
+          } ],
+          "Tags" : [
+            { "Key": "LOB", "Value":  "ecommerce" },
+            { "Key": "owner", "Value":  "jjtechinc" },
+            { "Key": "budget code", "Value":  "2249" },
+            { "Key": "patch group", "Value":  "linux" },
+            { "Key": "Name", "Value":  "jjtechWebServer" },
+            { "Key": "application id", "Value":  "OVID22JJ" },
+            { "Key": "project manager", "Value":  "Chilion Tabe" },
+            { "Key": "compliance classification", "Value":  "PCI" },
+            { "Key": "environment", "Value":  "dev, preprod, prod" },
+            { "Key": "data classification", "Value":  "classified" },
+            { "Key": "project name", "Value":  "ovid application deployment" }
+          ]
+        }
+      },
+      "jjtechAppServer": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "jjtechAppServerAZ" },
+          "ImageId": { "Ref": "jjtechAppServerImageId" },
+          "InstanceType": { "Ref": "jjtechAppServerInstanceType" },
+          "KeyName" : { "Ref": "jjtechAppServerKeyPair" },
+          "SubnetId" : { "Fn::ImportValue": "OvidApplicationAppServersPrivSubnetID" },
+          "SecurityGroupIds" : [ { "Fn::ImportValue": "OVIDAppServerSecurityGroup" } ],
+          "Tags" : [
+            { "Key": "LOB", "Value":  "ecommerce" },
+            { "Key": "owner", "Value":  "jjtechinc" },
+            { "Key": "budget code", "Value":  "2249" },
+            { "Key": "patch group", "Value":  "linux" },
+            { "Key": "Name", "Value":  "jjtechAppServer" },
+            { "Key": "application id", "Value":  "OVID22JJ" },
+            { "Key": "project manager", "Value":  "Chilion Tabe" },
+            { "Key": "compliance classification", "Value":  "PCI" },
+            { "Key": "environment", "Value":  "dev, preprod, prod" },
+            { "Key": "data classification", "Value":  "classified" },
+            { "Key": "project name", "Value":  "ovid application deployment" }
+          ]
+        }
+      }
+    },
+    "Outputs": {
+
+    }
+}

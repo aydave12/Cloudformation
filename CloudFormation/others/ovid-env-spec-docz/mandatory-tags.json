@@ -1,0 +1,13 @@
+[
+    { "Key": "LOB", "Value":  "ecommerce" },
+    { "Key": "owner", "Value":  "jjtechinc" },
+    { "Key": "budget code", "Value":  "2249" },
+    { "Key": "patch group", "Value":  "linux" },
+    { "Key": "Name", "Value":  "jjtechVPC" },
+    { "Key": "application id", "Value":  "OVID22JJ" },
+    { "Key": "project manager", "Value":  "Chilion Tabe" },
+    { "Key": "compliance classification", "Value":  "PCI" },
+    { "Key": "environment", "Value":  "dev, preprod, prod" },
+    { "Key": "data classification", "Value":  "classified" },
+    { "Key": "project name", "Value":  "ovid application deployment" }
+]

@@ -1,0 +1,35 @@
+[
+   {
+    "ParameterKey": "JJtechCidr",
+    "ParameterValue": "10.2.0.0/16"
+   },
+   {
+    "ParameterKey": "SubnetParameter",
+    "ParameterValue": "10.2.1.0/24"
+   },
+   {
+    "ParameterKey": "PrivSNAZ",
+    "ParameterValue": "us-east-1a"
+   },
+  {
+    "ParameterKey": "PubSNCidr",
+    "ParameterValue": "10.2.2.0/24"
+  },
+  {
+    "ParameterKey": "PublicSNAZ",
+    "ParameterValue" : "us-east-1b"
+  },
+  {
+    "ParameterKey": "InstanceType",
+    "ParameterValue" : "t2.micro"
+  },
+  {
+    "ParameterKey": "AMI",
+    "ParameterValue" : "ami-0742b4e673072066f"
+  },
+  {
+    "ParameterKey": "KeyPair",
+    "ParameterValue" : "test-key-nova-1"
+  }
+
+]

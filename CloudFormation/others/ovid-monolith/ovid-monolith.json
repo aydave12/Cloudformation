@@ -1,0 +1,496 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "EnvironmentName": {
+        "Description": "Environment Name",
+        "Type": "String",
+        "AllowedValues": [
+          "Dev",
+          "PreProd",
+          "Prod"
+        ],
+        "ConstraintDescription": "Environment must match with specified AllowedValue"
+      },
+      "jjtechvpcCIDR": {
+          "Description": "vpc CidrBlock",
+          "Type": "String"
+      },
+      "jjtechPubSNcidr": {
+          "Description": "cidr of your public subnet",
+          "Type": "String"
+      },
+      "jjtechPrvtSNcidr": {
+          "Description": "cidr of your private subnet",
+          "Type": "String"
+      },
+      "jjtechPublicSubnetAZ": {
+          "Description": "AZ for public SN ",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "jjtechPrvtSnAZ": {
+          "Description": "AZ for private SN ",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "jjtechPubRTrouteDestinationCidrBlock": {
+          "Description": "Provide DestinationCidrBlock",
+          "Type": "String"
+      },
+      "jjtechWebServerSGingressToPortForSSH": {
+          "Description": "Provide Security Group SSH Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechWebServerSGingressFromPortForSSH": {
+          "Description": "Provide Security Group Ingress SSH Rule FromPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechWebServerSGsourceIPforSSH": {
+          "Description": "Provide Source IP for jjtechWebServerSG SSH Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechWebServerSGingressToPortForHTTP": {
+          "Description": "Provide Security Group HTTP Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechWebServerSGingressFromPortForHTTP": {
+          "Description": "Provide Security Group HTTP Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechWebServerSGsourceIPforHTTP": {
+          "Description": "Provide Source IP for jjtechWebServerSG HTTP Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechWebServerSGingressToPortForHTTPS": {
+          "Description": "Provide Security Group HTTPS Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechWebServerSGingressFromPortForHTTPS": {
+          "Description": "Provide Security Group HTTPS Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechWebServerSGsourceIPforHTTPS": {
+          "Description": "Provide Source IP for jjtechWebServerSG HTTPS Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechWebServerAZ": {
+          "Description": "Select an AZ for jjtechWebServer",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "jjtechWebServerImageId": {
+          "Description": "Provide ImageId for jjtechWebServer",
+          "Type": "AWS::EC2::Image::Id"
+      },
+      "jjtechWebServerInstanceType": {
+          "Description": "Provide Instance type for WebServer",
+          "Type": "String",
+          "AllowedValues": [
+            "t2.micro",
+            "t2.nano",
+            "t2.small",
+            "t1.micro"
+          ],
+          "ConstraintDescription": "WebServer Instance type must match with specified AllowedValue"
+      },
+      "jjtechWebServerKeyPair": {
+          "Description": "Provide KeyPair Name for WebServer",
+          "Type": "AWS::EC2::KeyPair::KeyName"
+      },
+      "jjtechAppServerAZ": {
+          "Description": "Select an AZ for jjtechAppServer",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "jjtechAppServerImageId": {
+          "Description": "Provide ImageId for jjtechAppServer",
+          "Type": "AWS::EC2::Image::Id"
+      },
+      "jjtechAppServerInstanceType": {
+          "Description": "AppServer EC2 instance type (has default, AllowedValues)",
+          "Type": "String",
+          "AllowedValues": [
+            "t2.micro",
+            "t2.nano",
+            "t2.small",
+            "t1.micro"
+          ],
+          "ConstraintDescription": "AppServer Instance type must match with specified AllowedValue"
+      },
+      "jjtechAppServerKeyPair": {
+          "Description": "Provide KeyPair Name for AppServer",
+          "Type": "AWS::EC2::KeyPair::KeyName"
+      },
+      "jjtechAppServerSGingressToPortForSSH": {
+          "Description": "Provide App Server Security Group SSH Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechAppServerSGingressFromPortForSSH": {
+          "Description": "Provide App Server Security Group SSH Ingress Rule FromPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechAppServerSGsourceIPforSSH": {
+          "Description": "Provide App Server Source IP for jjtechWebServerSG SSH Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+
+      "jjtechAppServerSGingressToPortForHTTP": {
+          "Description": "Provide App Server Security Group HTTP Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechAppServerSGingressFromPortForHTTP": {
+          "Description": "Provide App Server Security Group HTTP Ingress Rule FromPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechAppServerSGsourceIPforHTTP": {
+          "Description": "Provide Source IP for jjtechAppServerSG HTTP Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechAppServerSGingressToPortForHTTPS": {
+          "Description": "Provide App Server Security Group HTTPS Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechAppServerSGingressFromPortForHTTPS": {
+          "Description": "Provide App Server Security Group HTTPS Ingress Rule FromPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechAppServerSGsourceIPforHTTPS": {
+          "Description": "Provide Source IP for jjtechAppServerSG HTTPS Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      }
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "jjtechVPC": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock": { "Ref": "jjtechvpcCIDR" },
+          "Tags": [{ "Key": "Name", "Value":  "jjtechVPC" }]
+        }
+      },
+      "jjtechIGW": {
+        "Type": "AWS::EC2::InternetGateway",
+        "Properties": {
+          "Tags": [{ "Key": "Name", "Value":  "jjtechIGW" }]
+        }
+      },
+      "AttachGateway": {
+        "Type": "AWS::EC2::VPCGatewayAttachment",
+        "Properties": {
+          "VpcId": { "Ref": "jjtechVPC" },
+          "InternetGatewayId": { "Ref": "jjtechIGW" }
+        }
+      },
+      "jjtechPubSN": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "jjtechPublicSubnetAZ" },
+          "VpcId": { "Ref": "jjtechVPC" },
+          "CidrBlock": { "Ref": "jjtechPubSNcidr" },
+          "Tags": [{ "Key": "Name", "Value":  "jjtechPubSN" }]
+        }
+      },
+      "jjtechPrvtSN": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "jjtechPrvtSnAZ" },
+          "VpcId": { "Ref": "jjtechVPC" },
+          "CidrBlock": { "Ref": "jjtechPrvtSNcidr" },
+          "Tags": [{ "Key": "Name", "Value":  "jjtechPrvtSN" }]
+        }
+      },
+      "jjtechPrvtRT": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": { "Ref": "jjtechVPC" },
+          "Tags": [{ "Key": "Name", "Value":  "jjtechPrvtRT" }]
+        }
+      },
+      "jjtechPubRT": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": { "Ref": "jjtechVPC" },
+          "Tags": [{ "Key": "Name", "Value":  "jjtechPubRT" }]
+        }
+      },
+      "jjtechPrvtRTAssociation": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "SubnetId": { "Ref": "jjtechPrvtSN" },
+          "RouteTableId": { "Ref": "jjtechPrvtRT" }
+        }
+      },
+      "jjtechPubRTAssociation": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "SubnetId": { "Ref": "jjtechPubSN" },
+          "RouteTableId": { "Ref": "jjtechPubRT" }
+        }
+      },
+      "jjtechPubRoute": {
+        "Type": "AWS::EC2::Route",
+        "Properties": {
+          "RouteTableId": { "Ref": "jjtechPubRT" },
+          "DestinationCidrBlock": { "Ref": "jjtechPubRTrouteDestinationCidrBlock" },
+          "GatewayId": { "Ref": "jjtechIGW" }
+        }
+      },
+      "jjtechWebServerSG" : {
+        "Type" : "AWS::EC2::SecurityGroup",
+        "Properties" : {
+          "GroupDescription" : "jjtechWebServer Security group",
+          "SecurityGroupIngress" : [{
+            "IpProtocol" : "tcp",
+            "FromPort" : { "Ref": "jjtechWebServerSGingressFromPortForSSH" },
+            "ToPort" : { "Ref": "jjtechWebServerSGingressToPortForSSH" },
+            "CidrIp" : { "Ref": "jjtechWebServerSGsourceIPforSSH" } },
+
+            {
+            "IpProtocol" : "tcp",
+            "FromPort" : { "Ref": "jjtechWebServerSGingressFromPortForHTTP" },
+            "ToPort" : { "Ref": "jjtechWebServerSGingressToPortForHTTP" },
+            "CidrIp" : { "Ref": "jjtechWebServerSGsourceIPforHTTP" } },
+            {
+            "IpProtocol" : "tcp",
+            "FromPort" : { "Ref": "jjtechWebServerSGingressFromPortForHTTPS" },
+            "ToPort" : { "Ref": "jjtechWebServerSGingressToPortForHTTPS" },
+            "CidrIp" : { "Ref": "jjtechWebServerSGsourceIPforHTTPS" } }
+
+            ],
+          "VpcId" : { "Ref": "jjtechVPC" },
+          "Tags" :  [{ "Key": "Name", "Value":  "jjtechWebServerSG" }]
+        }
+      },
+      "jjtechWebServer": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "jjtechWebServerAZ" },
+          "ImageId": { "Ref": "jjtechWebServerImageId" },
+          "InstanceType": { "Ref": "jjtechWebServerInstanceType" },
+          "KeyName" : { "Ref": "jjtechWebServerKeyPair" },
+          "NetworkInterfaces": [ {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [{ "Ref" : "jjtechWebServerSG" }],
+            "SubnetId": { "Ref" : "jjtechPubSN" }
+          } ],
+          "Tags" : [{ "Key": "Name", "Value":  "jjtechWebServer" }]
+        }
+      },
+      "jjtechAppServerSG" : {
+        "Type" : "AWS::EC2::SecurityGroup",
+        "Properties" : {
+          "GroupDescription" : "jjtechAppServer Security group",
+          "SecurityGroupIngress" : [
+            {
+              "IpProtocol" : "tcp",
+              "FromPort" : { "Ref": "jjtechAppServerSGingressFromPortForSSH" },
+              "ToPort" : { "Ref": "jjtechAppServerSGingressToPortForSSH" },
+              "CidrIp" : { "Ref": "jjtechAppServerSGsourceIPforSSH" }},
+              {
+              "IpProtocol" : "tcp",
+              "FromPort" : { "Ref": "jjtechAppServerSGingressFromPortForHTTP" },
+              "ToPort" : { "Ref": "jjtechAppServerSGingressToPortForHTTP" },
+              "CidrIp" : { "Ref": "jjtechAppServerSGsourceIPforHTTP" } },
+
+              {
+              "IpProtocol" : "tcp",
+              "FromPort" : { "Ref": "jjtechAppServerSGingressFromPortForHTTPS" },
+              "ToPort" : { "Ref": "jjtechAppServerSGingressToPortForHTTPS" },
+              "CidrIp" : { "Ref": "jjtechAppServerSGsourceIPforHTTPS" } }
+            ],
+          "VpcId" : { "Ref": "jjtechVPC" },
+          "Tags" :  [{ "Key": "Name", "Value":  "jjtechAppServerSG" }]
+        }
+      },
+      "jjtechAppServer": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "jjtechAppServerAZ" },
+          "ImageId": { "Ref": "jjtechAppServerImageId" },
+          "InstanceType": { "Ref": "jjtechAppServerInstanceType" },
+          "KeyName" : { "Ref": "jjtechAppServerKeyPair" },
+          "SubnetId" : { "Ref": "jjtechPrvtSN" },
+          "SecurityGroupIds" : [{ "Fn::GetAtt" : [ "jjtechAppServerSG", "GroupId" ]}],
+          "Tags" : [{ "Key": "Name", "Value":  "jjtechAppServer" }]
+        }
+      },
+      "jjtechovidappcloudfront4": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+            "BucketName": "jjtechovidappcloudfront4",
+            "AccessControl": "PublicRead",
+            "VersioningConfiguration": {
+                "Status": "Enabled"
+            },
+            "WebsiteConfiguration": {
+                "IndexDocument": "index.html",
+                "ErrorDocument": "error.html"
+            },
+            "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                    {
+                        "ServerSideEncryptionByDefault": {
+                            "SSEAlgorithm": "aws:kms",
+                            "KMSMasterKeyID": "OVID-KMS-KEY-ARN"
+                        }
+                    }
+                ]
+            },
+            "LoggingConfiguration": {
+                "DestinationBucketName": { "Ref": "OVIDLoggingBucket" },
+                "LogFilePrefix": "OVID-logs"
+            }
+        },
+        "DeletionPolicy": "Retain"
+    },
+    "OVIDLoggingBucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+            "BucketName": "jjtech.ovid.app.logs",
+            "AccessControl": "LogDeliveryWrite"
+        }
+    },
+    "OvidBucketPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+            "Bucket": { "Ref": "jjtechovidappcloudfront4" },
+            "PolicyDocument": {
+                "Statement": [ {
+                    "Action": [
+                      "s3:*"
+                    ],
+                    "Effect": "Deny",
+                    "Resource": { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "jjtechovidappcloudfront4" }, "/*"]]},
+                    "Principal": "*"
+                    } ]
+            }
+        }
+    },
+    "S3BucketPublicReadProhibited": {
+      "Type": "AWS::Config::ConfigRule",
+      "Properties": {
+          "ConfigRuleName": "S3BucketPublicReadProhibited",
+          "Description": "This AWS Config Rule checks and make sure Amazon S3 buckets do not allow public read access. The rule checks the Block Public Access settings, the bucket policy, and the bucket access control list (ACL).",
+          "Scope": {
+              "ComplianceResourceTypes": [
+                  "AWS::S3::Bucket"
+              ]
+          },
+          "Source": {
+              "Owner": "AWS",
+              "SourceIdentifier": "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+          },
+          "MaximumExecutionFrequency": "Six_Hours"
+      }
+  },
+  "S3BucketPublicWriteProhibited": {
+      "Type": "AWS::Config::ConfigRule",
+      "Properties": {
+          "ConfigRuleName": "S3BucketPublicWriteProhibited",
+          "Description": "Checks that your Amazon S3 buckets do not allow public write access. The rule checks the Block Public Access settings, the bucket policy, and the bucket access control list (ACL).",
+          "Scope": {
+              "ComplianceResourceTypes": [
+                  "AWS::S3::Bucket"
+              ]
+          },
+          "Source": {
+              "Owner": "AWS",
+              "SourceIdentifier": "S3_BUCKET_PUBLIC_WRITE_PROHIBITED"
+          },
+          "MaximumExecutionFrequency": "Six_Hours"
+      }
+  },
+  "S3BucketSSLRequestsOnly": {
+      "Type": "AWS::Config::ConfigRule",
+      "Properties": {
+          "ConfigRuleName": "S3BucketSSLRequestsOnly",
+          "Description": "Checks whether S3 buckets have policies that require requests to use Secure Socket Layer (SSL).",
+          "Scope": {
+              "ComplianceResourceTypes": [
+                  "AWS::S3::Bucket"
+              ]
+          },
+          "Source": {
+              "Owner": "AWS",
+              "SourceIdentifier": "S3_BUCKET_SSL_REQUESTS_ONLY"
+          }
+      }
+  },
+  "ServerSideEncryptionEnabled": {
+      "Type": "AWS::Config::ConfigRule",
+      "Properties": {
+          "ConfigRuleName": "ServerSideEncryptionEnabled",
+          "Description": "Checks that your Amazon S3 bucket either has S3 default encryption enabled or that the S3 bucket policy explicitly denies put-object requests without server side encryption.",
+          "Scope": {
+              "ComplianceResourceTypes": [
+                  "AWS::S3::Bucket"
+              ]
+          },
+          "Source": {
+              "Owner": "AWS",
+              "SourceIdentifier": "S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED"
+          }
+      }
+  },
+  "S3BucketLoggingEnabled": {
+      "Type": "AWS::Config::ConfigRule",
+      "Properties": {
+          "ConfigRuleName": "S3BucketLoggingEnabled",
+          "Description": "Checks whether logging is enabled for your S3 buckets.",
+          "Scope": {
+              "ComplianceResourceTypes": [
+                  "AWS::S3::Bucket"
+              ]
+          },
+          "Source": {
+              "Owner": "AWS",
+              "SourceIdentifier": "S3_BUCKET_LOGGING_ENABLED"
+          }
+      }
+  },
+  "S3BucketVesioningEnable": {
+      "Type": "AWS::Config::ConfigRule",
+      "Properties": {
+          "ConfigRuleName": "s3-bucket-versioning-enabled",
+          "Scope": {
+              "ComplianceResourceTypes": [
+                  "AWS::S3::Bucket"
+              ]
+          },
+          "Description": "A Config rule that checks whether versioning is enabled for your S3 buckets. Optionally, the rule checks if MFA delete is enabled for your S3 buckets.",
+          "Source": {
+              "Owner": "AWS",
+              "SourceIdentifier": "S3_BUCKET_VERSIONING_ENABLED"
+          }
+      }
+  }
+
+    },
+    "Outputs": {
+
+    }
+}

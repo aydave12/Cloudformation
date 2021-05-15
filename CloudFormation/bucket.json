@@ -1,0 +1,64 @@
+{
+"AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+    
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+        
+        "buckettest": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "Private",
+                "BucketName": "buckettest",
+                "LifecycleConfiguration": {},
+                "LoggingConfiguration": {
+                    "DestinationBucketName" : 
+                    { "Ref": "DestBucket" }
+                    ,
+                    "LogFilePrefix" : "testing-logs"
+                  },
+                "VersioningConfiguration": {"status": "enabled"},
+                "Tags": [] 
+            }
+        },
+        
+        "s3BucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "Bucket" : 
+                { "Ref": "buckettest" }
+                 ,
+                "PolicyDocument" : 
+                { "Ref": "S3PolicyDocument" }
+                
+            }
+        },
+
+        
+        "DestBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "DestBucket",
+                "Tags": [] 
+            }
+        }
+        
+        
+        
+
+    },
+    "Outputs": {
+
+    }
+}

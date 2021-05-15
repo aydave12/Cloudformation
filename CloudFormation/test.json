@@ -1,0 +1,77 @@
+{
+"AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      
+      "JJTechCidr": {
+          "Description": "Provide Cidr Block",
+          "Type": "[String]"
+          
+      }
+      
+    
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+        
+        "AyoVPC": {
+          "Type": "AWS::EC2::VPC",
+          "Properties": {
+            "CidrBlock": "10.5.0.0/16",
+            
+            "Tags": [            
+            { "Key": "Name", "Value":  "Staging" }
+            ]
+          }
+        },
+        
+        "AyoIGW": {
+          "Type": "AWS::EC2::InternetGateway",
+          "Properties": {
+            "Tags": [ 
+            "Tags":[
+            { "Key": "-", "Value":  "--" }
+            ]]
+          }
+        },
+        "AttachGateway": {
+          "Type": "AWS::EC2::VPCGatewayAttachment",
+          "Properties": {
+            "VpcId": 
+            { "Ref": "AyoVPC" }
+            ,
+            "InternetGatewayId": { "Ref": "AyoVPC" }
+          }
+        }
+        
+        
+        "PrivSN": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone": "us-east-1a",
+            "VpcId":
+            { "Ref": "AyoVPC" },
+            "CidrBlock": "10.5.0.0/24",
+            "Tags": 
+            [
+            { "Key": "Name", "Value":  "PrivateSN" }
+            ]
+          }
+        },
+        
+        
+        
+
+    },
+    "Outputs": {
+
+    }
+}

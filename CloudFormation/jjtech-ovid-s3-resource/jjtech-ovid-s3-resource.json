@@ -1,0 +1,88 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    
+    "Parameters": {
+        "EnvironmentName": {
+            "Description": "Environment Name",
+            "Type": "String",
+            "AllowedValues": [
+              "Dev",
+              "PreProd",
+              "Prod"
+            ],
+            "ConstraintDescription": "Environment must match with specified AllowedValue"
+        },
+        "jjtechOvidAppBucketName": {
+            "Description": "Provide a unique bucket name",
+            "Type": "String"
+        },
+        "jjtechOvidAppLoggingBucketName": {
+            "Description": "Provide a unique bucket name for jjtechOvidAppLoggingBucket",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "jjtechS3OvidAppCloudfront": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": { "Ref": "jjtechOvidAppBucketName" },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                },
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html",
+                    "ErrorDocument": "error.html"
+                },
+                "BucketEncryption": {
+                    "ServerSideEncryptionConfiguration": [
+                        {
+                            "ServerSideEncryptionByDefault": {
+                                "SSEAlgorithm": "aws:kms",
+                                "KMSMasterKeyID": "OVID-KMS-KEY-ARN"
+                            }
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": { "Ref": "OVIDLoggingBucket" },
+                    "LogFilePrefix": "OVID-logs"
+                }
+            }
+        },
+        "OVIDLoggingBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": { "Ref": "jjtechOvidAppLoggingBucketName" },
+                "AccessControl": "LogDeliveryWrite"
+            }
+        },
+        "OvidBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "Bucket": { "Ref": "jjtechS3OvidAppCloudfront" },
+                "PolicyDocument": {
+                    "Statement": [ {
+                        "Action": [
+                          "s3:*"
+                        ],
+                        "Effect": "Deny",
+                        "Resource": { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "jjtechS3OvidAppCloudfront" }, "/*"]]},
+                        "Principal": "*"
+                        } ]
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "WebsiteURL": {
+            "Value": { "Fn::GetAtt": [ "jjtechS3OvidAppCloudfront", "WebsiteURL"] },
+            "Description": "URL for website hosted on S3"
+        },
+        "OVIDs3EnviSecureURL": {
+            "Value": { "Fn::Join": [ "", ["https://", { "Fn::GetAtt": ["jjtechS3OvidAppCloudfront","DomainName"]}]
+              ]
+            },
+            "Description": "Provide the Name of Amazon S3 bucket to host static website content"
+        }
+    }
+}

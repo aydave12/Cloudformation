@@ -1,0 +1,187 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "jjtechWebServerSGingressToPortForSSH": {
+          "Description": "Provide Security Group SSH Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechWebServerSGingressFromPortForSSH": {
+          "Description": "Provide Security Group Ingress SSH Rule FromPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechWebServerSGsourceIPforSSH": {
+          "Description": "Provide Source IP for jjtechWebServerSG SSH Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechWebServerSGingressToPortForHTTP": {
+          "Description": "Provide Security Group HTTP Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechWebServerSGingressFromPortForHTTP": {
+          "Description": "Provide Security Group HTTP Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechWebServerSGsourceIPforHTTP": {
+          "Description": "Provide Source IP for jjtechWebServerSG HTTP Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechWebServerSGingressToPortForHTTPS": {
+          "Description": "Provide Security Group HTTPS Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechWebServerSGingressFromPortForHTTPS": {
+          "Description": "Provide Security Group HTTPS Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechWebServerSGsourceIPforHTTPS": {
+          "Description": "Provide Source IP for jjtechWebServerSG HTTPS Ingress Rules",
+          "Type": "String",
+          "Default": "0.0.0.0/0"
+      },
+      "jjtechAppServerSGingressToPortForSSH": {
+          "Description": "Provide App Server Security Group SSH Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechAppServerSGingressFromPortForSSH": {
+          "Description": "Provide App Server Security Group SSH Ingress Rule FromPort",
+          "Type": "String",
+          "Default": "22"
+      },
+      "jjtechAppServerSGingressToPortForHTTP": {
+          "Description": "Provide App Server Security Group HTTP Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechAppServerSGingressFromPortForHTTP": {
+          "Description": "Provide App Server Security Group HTTP Ingress Rule FromPort",
+          "Type": "String",
+          "Default": "80"
+      },
+      "jjtechAppServerSGingressToPortForHTTPS": {
+          "Description": "Provide App Server Security Group HTTPS Ingress Rule ToPort",
+          "Type": "String",
+          "Default": "443"
+      },
+      "jjtechAppServerSGingressFromPortForHTTPS": {
+          "Description": "Provide App Server Security Group HTTPS Ingress Rule FromPort",
+          "Type": "String",
+          "Default": "443"
+      }
+
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "jjtechWebServerSG" : {
+        "Type" : "AWS::EC2::SecurityGroup",
+        "Properties" : {
+          "GroupDescription" : "jjtechWebServer Security group",
+          "SecurityGroupIngress" : [{
+            "IpProtocol" : "tcp",
+            "FromPort" : { "Ref": "jjtechWebServerSGingressFromPortForSSH" },
+            "ToPort" : { "Ref": "jjtechWebServerSGingressToPortForSSH" },
+            "CidrIp" : { "Ref": "jjtechWebServerSGsourceIPforSSH" } },
+
+            {
+            "IpProtocol" : "tcp",
+            "FromPort" : { "Ref": "jjtechWebServerSGingressFromPortForHTTP" },
+            "ToPort" : { "Ref": "jjtechWebServerSGingressToPortForHTTP" },
+            "CidrIp" : { "Ref": "jjtechWebServerSGsourceIPforHTTP" } },
+            {
+            "IpProtocol" : "tcp",
+            "FromPort" : { "Ref": "jjtechWebServerSGingressFromPortForHTTPS" },
+            "ToPort" : { "Ref": "jjtechWebServerSGingressToPortForHTTPS" },
+            "CidrIp" : { "Ref": "jjtechWebServerSGsourceIPforHTTPS" } }
+
+            ],
+          "VpcId" : { "Fn::ImportValue": "OvidApplicationVPCID" },
+          "Tags" :  [
+            { "Key": "LOB", "Value":  "ecommerce" },
+            { "Key": "owner", "Value":  "jjtechinc" },
+            { "Key": "budget code", "Value":  "2249" },
+            { "Key": "patch group", "Value":  "linux" },
+            { "Key": "Name", "Value":  "jjtechWebServerSG" },
+            { "Key": "application id", "Value":  "OVID22JJ" },
+            { "Key": "project manager", "Value":  "Chilion Tabe" },
+            { "Key": "compliance classification", "Value":  "PCI" },
+            { "Key": "environment", "Value":  "dev, preprod, prod" },
+            { "Key": "data classification", "Value":  "classified" },
+            { "Key": "project name", "Value":  "ovid application deployment" }
+          ]
+        }
+      },
+      "jjtechAppServerSG" : {
+        "Type" : "AWS::EC2::SecurityGroup",
+        "Properties" : {
+          "GroupDescription" : "jjtechAppServer Security group",
+          "SecurityGroupIngress" : [
+            {
+              "IpProtocol" : "tcp",
+              "FromPort" : { "Ref": "jjtechAppServerSGingressFromPortForSSH" },
+              "ToPort" : { "Ref": "jjtechAppServerSGingressToPortForSSH" },
+              "SourceSecurityGroupId": { "Fn::GetAtt" : [ "jjtechWebServerSG", "GroupId" ]}},
+              {
+              "IpProtocol" : "tcp",
+              "FromPort" : { "Ref": "jjtechAppServerSGingressFromPortForHTTP" },
+              "ToPort" : { "Ref": "jjtechAppServerSGingressToPortForHTTP" },
+              "SourceSecurityGroupId": { "Fn::GetAtt" : [ "jjtechWebServerSG", "GroupId" ]} },
+
+              {
+              "IpProtocol" : "tcp",
+              "FromPort" : { "Ref": "jjtechAppServerSGingressFromPortForHTTPS" },
+              "ToPort" : { "Ref": "jjtechAppServerSGingressToPortForHTTPS" },
+              "SourceSecurityGroupId": { "Fn::GetAtt" : [ "jjtechWebServerSG", "GroupId" ]} }
+            ],
+          "VpcId" : { "Fn::ImportValue": "OvidApplicationVPCID" },
+          "Tags" :  [
+            { "Key": "LOB", "Value":  "ecommerce" },
+            { "Key": "owner", "Value":  "jjtechinc" },
+            { "Key": "budget code", "Value":  "2249" },
+            { "Key": "patch group", "Value":  "linux" },
+            { "Key": "Name", "Value":  "jjtechWebServerSG" },
+            { "Key": "application id", "Value":  "OVID22JJ" },
+            { "Key": "project manager", "Value":  "Chilion Tabe" },
+            { "Key": "compliance classification", "Value":  "PCI" },
+            { "Key": "environment", "Value":  "dev, preprod, prod" },
+            { "Key": "data classification", "Value":  "classified" },
+            { "Key": "project name", "Value":  "ovid application deployment" }
+          ]
+        }
+      }
+
+    },
+    "Outputs": {
+      "OVIDWebServerSecurityGroup": {
+        "Description": "The SSH Security Group for our Company",
+        "Value": { "Ref": "jjtechWebServerSG" },
+        "Export": {
+          "Name": "OVIDWebServerSecurityGroup"
+        }
+      },
+      "OVIDAppServerSecurityGroup": {
+        "Description": "The SSH Security Group for our Company",
+        "Value": { "Ref": "jjtechAppServerSG" },
+        "Export": {
+          "Name": "OVIDAppServerSecurityGroup"
+        }
+      }
+
+    }
+}

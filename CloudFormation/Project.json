@@ -1,0 +1,261 @@
+{
+"AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+        
+        "VPCCidr": {
+            "Description": "Provide CIDR for VPC",
+            "Type": "String"
+        },
+        
+        "PrivSNACidr": {
+            "Description": "Provide a Cidr for Private SubNet A",
+            "Type": "String"
+        },
+        
+        "PrivSNAAZ": {
+            "Description": "Provide AZ for Private SubNet A",
+            "Type": "String"
+        },
+        "PrivSNBCidr": {
+            "Description": "Provide a Cidr for Private SubNet A",
+            "Type": "String"
+        },
+        
+        "PrivSNBAZ": {
+            "Description": "Provide AZ for Private SubNet A",
+            "Type": "String"
+        },
+        "PubSNACidr": {
+            "Description": "Provide a Cidr for Private SubNet A",
+            "Type": "String"
+        },
+        
+        "PubSNAAZ": {
+            "Description": "Provide AZ for Private SubNet A",
+            "Type": "String"
+        },
+        "PubSNBCidr": {
+            "Description": "Provide a Cidr for Private SubNet A",
+            "Type": "String"
+        },
+        
+        "PubSNBAZ": {
+            "Description": "Provide AZ for Private SubNet A",
+            "Type": "String"
+        }
+        
+        
+    
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+        
+        "MainVPC": {
+          "Type": "AWS::EC2::VPC",
+          "Properties": {
+            "CidrBlock": 
+            { "Ref": "VPCCidr" }
+             ,
+            "Tags": [
+            { "Key": "Name", "Value":  "MainVPC" }
+            ]
+          }
+        },
+        
+        "PrivSNA": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone": 
+            { "Ref": "PrivSNAAZ" }
+             ,
+            "VpcId": 
+            { "Ref": "MainVPC" }
+             ,
+            "CidrBlock": 
+            { "Ref": "PrivSNACidr" }
+            ,
+            "Tags": [
+            { "Key": "Name", "Value":  "PrivSubNetA" }
+            ]
+          }
+        },
+        
+        "PrivSNB": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone":
+            { "Ref": "PrivSNBAZ" }
+             ,
+            "VpcId": 
+            { "Ref": "MainVPC" }
+             ,
+            "CidrBlock": 
+            { "Ref": "PrivSNBCidr" }
+             ,
+            "Tags": [
+            { "Key": "Name", "Value":  "PrivSubnetB" }
+            ]
+          }
+        },
+        "PubSNA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+              "AvailabilityZone": 
+              { "Ref": "PubSNAAZ" }
+               ,
+              "VpcId": 
+              { "Ref": "MainVPC" }
+               ,
+              "CidrBlock": 
+              { "Ref": "PubSNACidr" }
+              ,
+              "Tags": [
+              { "Key": "Name", "Value":  "PubSubNetA" }
+              ]
+            }
+          },
+          
+          "PubSNB": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+              "AvailabilityZone":
+              { "Ref": "PubSNBAZ" }
+               ,
+              "VpcId": 
+              { "Ref": "MainVPC" }
+               ,
+              "CidrBlock": 
+              { "Ref": "PubSNBCidr" }
+               ,
+              "Tags": [
+              { "Key": "Name", "Value":  "PubSubnetB" }
+              ]
+            }
+        },
+        
+        "VPCIGW": {
+          "Type": "AWS::EC2::InternetGateway",
+          "Properties": {
+            "Tags": [
+            { "Key": "Name", "Value":  "VPCInternetGW" }
+            ] 
+          }
+        },
+        "AttachGateway": {
+          "Type": "AWS::EC2::VPCGatewayAttachment",
+          "Properties": {
+            "VpcId":
+            { "Ref": "MainVPC" }
+             ,
+            "InternetGatewayId": { "Ref": "VPCIGW" }
+          }
+        },
+        
+        "PrivateRT": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId":
+            { "Ref": "MainVPC" },
+            "Tags": [
+            { "Key": "Name", "Value":  "PrivateRouteTable" }
+            ]
+          }
+        },
+        
+        "PublicRT": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId": 
+            { "Ref": "MainVPC" },
+            "Tags": [
+            { "Key": "Name", "Value":  "PublicRouteTable" }
+            ]
+          }
+        },
+        
+        "PrivSNASSN": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId": 
+            { "Ref": "PrivSNA" }
+            ,
+            "RouteTableId": 
+            { "Ref": "PrivateRT" }
+            
+          }
+        },
+        
+        "PrivSNASSNB": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId": 
+            { "Ref": "PrivSNB" }
+            ,
+            "RouteTableId": 
+            { "Ref": "PrivateRT" }
+          }
+        },
+        "PubSNASSN": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+              "SubnetId": 
+              { "Ref": "PubSNA" }
+              ,
+              "RouteTableId": 
+              { "Ref": "PublicRT" }
+              
+            }
+          },
+          
+          "PubSNASSNB": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+              "SubnetId": 
+              { "Ref": "PubSNB" }
+              ,
+              "RouteTableId": 
+              { "Ref": "PublicRT" }
+            }
+          },
+        
+            "PublicRte": {
+          "Type": "AWS::EC2::Route",
+          "Properties": {
+            "RouteTableId": 
+            { "Ref": "PublicRT" }
+             ,
+            "DestinationCidrBlock": "0.0.0.0/0",
+            "GatewayId": 
+            { "Ref": "VPCIGW" }
+            
+          }
+        }
+        
+    },
+    "Outputs": {
+      "ProjectVPCID" : {
+        "Description" : "Main VPC ID",
+        "Value" : { "Ref" : "MainVPC" },
+        "Export" : {
+          "Name" : "ProjectVPC"
+          }
+        },
+        "PrjPrivSNAID" : {
+          "Description" : "Priv SubNet A ID",
+          "Value" : { "Ref" : "PrivSNA" },
+          "Export" : {
+            "Name" : "PrjPrivSNA"
+            }
+          }
+
+    }
+}
